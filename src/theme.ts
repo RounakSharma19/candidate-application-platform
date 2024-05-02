@@ -3,7 +3,7 @@ import { createTheme } from "@mui/material/styles";
 let theme = createTheme({
   palette: {
     background: {
-      default: "#EDF1F6",
+      default: "#FFFFFF",
     },
 
     text: {
@@ -12,7 +12,7 @@ let theme = createTheme({
     },
 
     primary: {
-      main: "#25476A",
+      main: "#54efc3",
       light: "#fff",
     },
 

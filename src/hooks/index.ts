@@ -1,0 +1,1 @@
+export { useCustomQuery } from "./useCustomQuery";

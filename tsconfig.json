@@ -24,8 +24,11 @@
     "paths": {
       "@": ["src/*"],
       "@assets": ["src/assets/index.ts"],
+      "@api": ["src/api/index.ts"],
       "@components": ["src/components/index.ts"],
+      "@constants": ["src/constants/index.ts"],
       "@features": ["src/features/index.ts"],
+      "@hooks": ["src/hooks/index.ts"],
       "@lang": ["src/lang/index.ts"],
       "@pages": ["src/pages/index.ts"],
       "@utils": ["src/utils/index.ts"]
