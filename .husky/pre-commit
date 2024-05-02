@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo '🏗️👷 Checking your code for formatting, linting and typing stuff before committing'
+
+echo " "
+
+echo 'STEP 1-----> Running a few scripts on staged files '
+
+echo " "
+
+npx lint-staged ||
+(
+    echo 'Your code looks off from our standard. 🤢🤮🤢🤮 make necessary changes and try commit again ';
+    false;
+)

@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+echo " "
+
+echo 'STEP 2-----> Checking if the commit message is following the conventional commits standard!🔎🔎'
+
+npx --no -- commitlint --edit ||
+(
+    echo '❌ Something is not right here........ 
+    Did you follow this format - <type>([optional scope]): <description>.
+    Accepted types are - (fix |feat |docs |test |perf |chore |refactor |build |style) 
+    
+    For more details checkout - https://github.com/conventional-changelog/commitlint/tree/master/@commitlint/config-conventional
+    '
+    false;
+)
+
+echo " "
+
+# If everything passes... Now we can commit
+echo '✅✅✅✅ You did a great job this time... I am committing this now. ✅✅✅✅'
+
+echo " "
