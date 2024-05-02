@@ -1,0 +1,43 @@
+{
+  "name": "candidate-application-platform",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000",
+    "build": "tsc && vite build",
+    "build:dev": "tsc && dotenv -e .env.development vite build",
+    "preview": "vite preview",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "check-lint": "eslint . --ext ts --ext tsx",
+    "check-types": "tsc --pretty --noEmit",
+    "check-format": "prettier --check .",
+    "fix-lint": "eslint --fix --ext .tsx,.ts . && git add -A",
+    "prepare": "chmod +x ./node_modules/husky/lib/bin.js && husky install",
+    "format": "prettier --write . && git add -A"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.0",
+    "@mui/material": "^5.15.0",
+    "@tanstack/react-query": "^5.13.4",
+    "axios": "^1.6.2",
+    "moment": "^2.30.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
+  }
+}
