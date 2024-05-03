@@ -25,7 +25,7 @@ import {
 } from "@components";
 import { Bolt, CheckOutlined } from "@mui/icons-material";
 import { TExperienceLevel, TMinBasePay, TRole } from "./index";
-import { useCustomQuery } from "@hooks";
+import { useCustomQuery, useDebounce } from "@hooks";
 import { fetchJobs } from "@api";
 
 const MAX_DESCRIPTION_LENGTH = 200;
@@ -59,20 +59,9 @@ export const JobsListing = (): JSX.Element => {
   const [selectedBasePay, setSelectedBasePay] = useState<TMinBasePay | null>(
     null
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleChangeExperience = (value: TExperienceLevel | null) => {
-    setSelectedExperience(value);
-  };
-
-  const handleChangeLocation = (value: string | null) => {
-    setSelectedLocation(value);
-  };
-  const handleChangeRole = (value: TRole | null) => {
-    setSelectedRole(value);
-  };
-  const handleChangeMinBasePay = (value: TMinBasePay | null) => {
-    setSelectedBasePay(value);
-  };
+  const debouncedSearchValue = useDebounce(searchQuery, 500);
 
   const { data } = useCustomQuery(
     [
@@ -98,28 +87,21 @@ export const JobsListing = (): JSX.Element => {
     }));
   };
 
-  const filteredJobs = data?.jdList.filter((job: any) => {
-    const meetsExperienceLevel =
-      !selectedExperience ||
-      (job.minExp <= selectedExperience.maxExp &&
-        job.maxExp >= selectedExperience.minExp);
-
-    const meetsLocation =
-      !selectedLocation || job.location === selectedLocation;
-
-    const meetsRole =
-      !selectedRole ||
-      (job.jobRole &&
-        typeof job.jobRole === "string" &&
-        job.jobRole.toLowerCase() === selectedRole.jobRole.toLowerCase());
-
-    const meetsBasePay =
-      !selectedBasePay ||
-      (typeof job.minJdSalary === "number" &&
-        job.minJdSalary >= selectedBasePay.minJdSalary);
-
-    return meetsExperienceLevel && meetsLocation && meetsRole && meetsBasePay;
-  });
+  const filteredJobs = data?.jdList.filter(
+    (job: any) =>
+      (!selectedExperience ||
+        (job.minExp <= selectedExperience.maxExp &&
+          job.maxExp >= selectedExperience.minExp)) &&
+      (!selectedLocation || job.location === selectedLocation) &&
+      (!selectedRole ||
+        (typeof job.jobRole === "string" &&
+          job.jobRole.toLowerCase() === selectedRole.jobRole.toLowerCase())) &&
+      (!selectedBasePay ||
+        (typeof job.minJdSalary === "number" &&
+          job.minJdSalary >= selectedBasePay.minJdSalary)) &&
+      (debouncedSearchValue.trim() === "" ||
+        job.location.toLowerCase().includes(debouncedSearchValue.toLowerCase()))
+  );
 
   return (
     <Box
@@ -132,7 +114,7 @@ export const JobsListing = (): JSX.Element => {
         <Grid item>
           <MinExperienceDropdown
             value={selectedExperience}
-            onChange={handleChangeExperience}
+            onChange={(value) => setSelectedExperience(value)}
             variant="outlined"
             size="small"
             width={180}
@@ -142,7 +124,7 @@ export const JobsListing = (): JSX.Element => {
         <Grid item>
           <LocationDropdown
             value={selectedLocation}
-            onChange={handleChangeLocation}
+            onChange={(value) => setSelectedLocation(value)}
             variant="outlined"
             size="small"
             width={230}
@@ -152,7 +134,7 @@ export const JobsListing = (): JSX.Element => {
         <Grid item>
           <RoleDropdown
             value={selectedRole}
-            onChange={handleChangeRole}
+            onChange={(value) => setSelectedRole(value)}
             variant="outlined"
             size="small"
             width={230}
@@ -162,7 +144,7 @@ export const JobsListing = (): JSX.Element => {
         <Grid item>
           <MinBasePayDropdown
             value={selectedBasePay}
-            onChange={handleChangeMinBasePay}
+            onChange={(value) => setSelectedBasePay(value)}
             variant="outlined"
             size="small"
             width={260}
@@ -172,10 +154,10 @@ export const JobsListing = (): JSX.Element => {
         <Grid item>
           <SearchBar
             onSearch={(value) => {
-              console.log("Search value:", value);
+              setSearchQuery(value);
             }}
             placeholder={localized.search}
-            value={""}
+            value={searchQuery}
             size="small"
           />
         </Grid>
