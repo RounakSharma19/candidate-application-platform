@@ -41,6 +41,7 @@ export const JobsListing = (): JSX.Element => {
     unlock: useMessage.unlock,
     minExperience: useMessage.minExperience,
     years: useMessage.years,
+    year: useMessage.year,
     search: useMessage.search,
     min: useMessage.min,
     location: useMessage.location,
@@ -98,15 +99,26 @@ export const JobsListing = (): JSX.Element => {
   };
 
   const filteredJobs = data?.jdList.filter((job: any) => {
-    if (
-      (selectedExperience && job.experienceLevel !== selectedExperience) ||
-      (selectedLocation && job.location !== selectedLocation) ||
-      (selectedRole && job.role !== selectedRole) ||
-      (selectedBasePay && job.basePay !== selectedBasePay)
-    ) {
-      return false;
-    }
-    return true;
+    const meetsExperienceLevel =
+      !selectedExperience ||
+      (job.minExp <= selectedExperience.maxExp &&
+        job.maxExp >= selectedExperience.minExp);
+
+    const meetsLocation =
+      !selectedLocation || job.location === selectedLocation;
+
+    const meetsRole =
+      !selectedRole ||
+      (job.jobRole &&
+        typeof job.jobRole === "string" &&
+        job.jobRole.toLowerCase() === selectedRole.jobRole.toLowerCase());
+
+    const meetsBasePay =
+      !selectedBasePay ||
+      (typeof job.minJdSalary === "number" &&
+        job.minJdSalary >= selectedBasePay.minJdSalary);
+
+    return meetsExperienceLevel && meetsLocation && meetsRole && meetsBasePay;
   });
 
   return (
@@ -171,7 +183,7 @@ export const JobsListing = (): JSX.Element => {
 
       <Grid container spacing={2}>
         {filteredJobs?.map((job: any) => (
-          <Grid item xs={12} sm={6} md={4} key={job.jdUid} marginBottom={5}>
+          <Grid item xs={12} sm={6} md={4} key={job.jdUid} marginBottom={4}>
             <Card
               sx={{
                 border: 1,
@@ -282,9 +294,13 @@ export const JobsListing = (): JSX.Element => {
                 <Typography variant="h5" fontWeight="normal" color="#9c9c9c">
                   {localized.minExperience}
                 </Typography>
+
                 <Typography variant="h5" fontWeight="normal" color="#212121">
-                  {isUndefinedOrNull(`${job.minExp} ${localized.years}`)}
+                  {`${isUndefinedOrNull(job.minExp)} ${
+                    job.minExp === 1 ? localized.year : localized.years
+                  }`}
                 </Typography>
+
                 <Button
                   variant="contained"
                   color="primary"

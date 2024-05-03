@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, Divider, TextField } from "@mui/material";
 import { useCustomQuery } from "@hooks";
 import { fetchJobs } from "@api";
 
@@ -58,6 +58,15 @@ export const RoleDropdown = (props: TProps): JSX.Element => {
           fullWidth
           size={size}
           style={{ width: width }}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                <Divider orientation="vertical" flexItem />
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
         />
       )}
     />
