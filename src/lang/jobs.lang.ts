@@ -14,5 +14,6 @@ export const jobs = {
     location: "Location",
     roles: "Roles",
     experience: "Experience",
+    noJobsFound: "No Jobs Found",
   },
 };

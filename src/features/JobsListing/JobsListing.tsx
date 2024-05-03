@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -49,6 +49,7 @@ export const JobsListing = (): JSX.Element => {
     location: useMessage.location,
     roles: useMessage.roles,
     experience: useMessage.experience,
+    noJobsFound: useMessage.noJobsFound,
   };
 
   const [expandedDescriptions, setExpandedDescriptions] = useState<{
@@ -89,8 +90,6 @@ export const JobsListing = (): JSX.Element => {
       },
     });
 
-  console.log("rounak", data);
-
   const finalData = data?.pages.flatMap((page) => page.jdList) || [];
 
   const filteredJobs = finalData?.filter(
@@ -110,8 +109,8 @@ export const JobsListing = (): JSX.Element => {
   );
 
   const observeLastJobRef = useCallback(
-    (node: any) => {
-      if (isLoading || isError || !node || !hasNextPage) return;
+    (node: HTMLElement | null) => {
+      if (!node || isLoading || isError || !hasNextPage) return;
 
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
@@ -143,6 +142,24 @@ export const JobsListing = (): JSX.Element => {
     }));
   };
 
+  const handleScroll = useCallback(() => {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+    if (scrollTop + clientHeight >= scrollHeight) {
+      const lastJobNode = document.querySelector(".last-job");
+      if (lastJobNode instanceof HTMLElement) {
+        observeLastJobRef(lastJobNode);
+      }
+    }
+  }, [observeLastJobRef]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
+
   return (
     <ShellWrapper isLoading={isLoading} isError={isError}>
       <Box
@@ -150,6 +167,7 @@ export const JobsListing = (): JSX.Element => {
         flexWrap="wrap"
         justifyContent="space-between"
         padding={3}
+        onScroll={handleScroll}
       >
         <Grid
           container
@@ -209,184 +227,204 @@ export const JobsListing = (): JSX.Element => {
             />
           </Grid>
         </Grid>
-
-        <Grid container spacing={2}>
-          {filteredJobs?.map((job: any) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              key={job.jdUid}
-              marginBottom={4}
-              ref={isLastJob ? observeLastJobRef : null}
-            >
-              <Card
-                sx={{
-                  border: 1,
-                  borderRadius: 5,
-                  boxShadow: 2,
-                  borderColor: "#fafaf7",
-                  maxWidth: "450px",
-                }}
+        <Render if={filteredJobs && filteredJobs.length > 0}>
+          <Grid container spacing={2}>
+            {filteredJobs?.map((job: any) => (
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                md={4}
+                key={job.jdUid}
+                marginBottom={4}
+                ref={isLastJob ? observeLastJobRef : null}
               >
-                <CardContent>
-                  <PostedChip />
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    marginTop={2}
-                    marginBottom={2}
-                  >
-                    <Avatar src={jobsIcon} sx={{ ml: 2 }} />
-                    <Box ml={1.5} display="flex" flexDirection="column">
+                <Card
+                  sx={{
+                    border: 1,
+                    borderRadius: 5,
+                    boxShadow: 2,
+                    borderColor: "#fafaf7",
+                    maxWidth: "450px",
+                  }}
+                >
+                  <CardContent>
+                    <PostedChip />
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      marginTop={2}
+                      marginBottom={2}
+                    >
+                      <Avatar src={jobsIcon} sx={{ ml: 2 }} />
+                      <Box ml={1.5} display="flex" flexDirection="column">
+                        <Typography
+                          variant="h5"
+                          fontWeight="bold"
+                          marginBottom={0.5}
+                        >
+                          {capitalizeFirst(job.jobRole)}
+                        </Typography>
+                        <Render if={job.location}>
+                          <Typography variant="h6" fontWeight="normal">
+                            {capitalizeFirst(job.location)}
+                          </Typography>
+                        </Render>
+                      </Box>
+                    </Box>
+                    <Render if={job.maxJdSalary}>
                       <Typography
                         variant="h5"
-                        fontWeight="bold"
-                        marginBottom={0.5}
+                        color="#4c5969"
+                        marginBottom={2}
+                        fontWeight={500}
                       >
-                        {capitalizeFirst(job.jobRole)}
+                        {localized.estimated}
+                        {`${isUndefinedOrNull(
+                          job.minJdSalary
+                        )} - ${isUndefinedOrNull(job.maxJdSalary)} `}
+                        {`${WithRupeeSymbol(job.salaryCurrencyCode)}`}
+                        <CheckOutlined
+                          sx={{
+                            color: "white",
+                            bgcolor: "#00b602",
+                            ml: 1,
+                            borderRadius: 1,
+                            fontSize: "15px",
+                          }}
+                        />
                       </Typography>
-                      <Render if={job.location}>
-                        <Typography variant="h6" fontWeight="normal">
-                          {capitalizeFirst(job.location)}
-                        </Typography>
-                      </Render>
-                    </Box>
-                  </Box>
-                  <Render if={job.maxJdSalary}>
+                    </Render>
                     <Typography
                       variant="h5"
-                      color="#4c5969"
-                      marginBottom={2}
-                      fontWeight={500}
+                      fontWeight="bold"
+                      color="text.primary"
                     >
-                      {localized.estimated}
-                      {`${isUndefinedOrNull(
-                        job.minJdSalary
-                      )} - ${isUndefinedOrNull(job.maxJdSalary)} `}
-                      {`${WithRupeeSymbol(job.salaryCurrencyCode)}`}
-                      <CheckOutlined
-                        sx={{
-                          color: "white",
-                          bgcolor: "#00b602",
-                          ml: 1,
-                          borderRadius: 1,
-                          fontSize: "15px",
-                        }}
-                      />
+                      {localized.aboutComapny}
                     </Typography>
-                  </Render>
-                  <Typography
-                    variant="h5"
-                    fontWeight="bold"
-                    color="text.primary"
-                  >
-                    {localized.aboutComapny}
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    color="text.primary"
-                    marginBottom={2}
-                  >
-                    {localized.aboutUs}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="text.primary"
-                    sx={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: expandedDescriptions[job.jdUid]
-                        ? "unset"
-                        : MAX_LINES_INITIAL,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      marginBottom: "0.5rem",
-                      transition: "all 0.3s ease-in-out",
-                      opacity: expandedDescriptions[job.jdUid] ? 1 : 0.5,
-                    }}
-                  >
-                    {job.jobDetailsFromCompany}
-                  </Typography>
-
-                  <Box display="flex" justifyContent="center" marginBottom={3}>
-                    <Render
-                      if={
-                        job.jobDetailsFromCompany.length >
-                        MAX_DESCRIPTION_LENGTH
-                      }
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.primary"
+                      marginBottom={2}
                     >
-                      <Button
-                        variant="text"
-                        size="small"
-                        onClick={() => toggleDescription(job.jdUid)}
-                        sx={{
-                          transition: "all 0.3s ease-in-out",
-                          opacity: expandedDescriptions[job.jdUid] ? 1 : 0.5,
-                          color: "#4943da",
-                        }}
+                      {localized.aboutUs}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="text.primary"
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: expandedDescriptions[job.jdUid]
+                          ? "unset"
+                          : MAX_LINES_INITIAL,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        marginBottom: "0.5rem",
+                        transition: "all 0.3s ease-in-out",
+                        opacity: expandedDescriptions[job.jdUid] ? 1 : 0.5,
+                      }}
+                    >
+                      {job.jobDetailsFromCompany}
+                    </Typography>
+
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      marginBottom={3}
+                    >
+                      <Render
+                        if={
+                          job.jobDetailsFromCompany.length >
+                          MAX_DESCRIPTION_LENGTH
+                        }
                       >
-                        {expandedDescriptions[job.jdUid]
-                          ? "View Job"
-                          : "View Job"}
-                      </Button>
-                    </Render>
-                  </Box>
-                  <Typography variant="h5" fontWeight="normal" color="#9c9c9c">
-                    {localized.minExperience}
-                  </Typography>
+                        <Button
+                          variant="text"
+                          size="small"
+                          onClick={() => toggleDescription(job.jdUid)}
+                          sx={{
+                            transition: "all 0.3s ease-in-out",
+                            opacity: expandedDescriptions[job.jdUid] ? 1 : 0.5,
+                            color: "#4943da",
+                          }}
+                        >
+                          {expandedDescriptions[job.jdUid]
+                            ? "View Job"
+                            : "View Job"}
+                        </Button>
+                      </Render>
+                    </Box>
+                    <Typography
+                      variant="h5"
+                      fontWeight="normal"
+                      color="#9c9c9c"
+                    >
+                      {localized.minExperience}
+                    </Typography>
 
-                  <Typography variant="h5" fontWeight="normal" color="#212121">
-                    {`${isUndefinedOrNull(job.minExp)} ${
-                      job.minExp === 1 ? localized.year : localized.years
-                    }`}
-                  </Typography>
+                    <Typography
+                      variant="h5"
+                      fontWeight="normal"
+                      color="#212121"
+                    >
+                      {`${isUndefinedOrNull(job.minExp)} ${
+                        job.minExp === 1 ? localized.year : localized.years
+                      }`}
+                    </Typography>
 
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{
-                      mt: 1,
-                      borderRadius: 2,
-                      fontWeight: "bold",
-                      padding: 1.5,
-                      backgroundColor: "#54efc3",
-                      marginBottom: 1.7,
-                    }}
-                    startIcon={<Bolt sx={{ color: "#ffd768" }} />}
-                  >
-                    {localized.easyApply}
-                  </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      sx={{
+                        mt: 1,
+                        borderRadius: 2,
+                        fontWeight: "bold",
+                        padding: 1.5,
+                        backgroundColor: "#54efc3",
+                        marginBottom: 1.7,
+                      }}
+                      startIcon={<Bolt sx={{ color: "#ffd768" }} />}
+                    >
+                      {localized.easyApply}
+                    </Button>
 
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    sx={{
-                      mt: 1,
-                      borderRadius: 2,
-                      fontWeight: "bold",
-                      padding: 1.5,
-                      backgroundColor: "#4943da",
-                      color: "#fff",
-                    }}
-                  >
-                    <Stack direction="row" spacing={1}>
-                      <BadgeAvatars />
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{
+                        mt: 1,
+                        borderRadius: 2,
+                        fontWeight: "bold",
+                        padding: 1.5,
+                        backgroundColor: "#4943da",
+                        color: "#fff",
+                      }}
+                    >
+                      <Stack direction="row" spacing={1}>
+                        <BadgeAvatars />
 
-                      <BadgeAvatars />
-                    </Stack>
+                        <BadgeAvatars />
+                      </Stack>
 
-                    <span>&nbsp;&nbsp;</span>
+                      <span>&nbsp;&nbsp;</span>
 
-                    {localized.unlock}
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                      {localized.unlock}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Render>
+        <Render
+          if={!filteredJobs || (filteredJobs && filteredJobs.length === 0)}
+        >
+          <Typography variant="h6" color="text.secondary">
+            {localized.noJobsFound}
+          </Typography>
+        </Render>
       </Box>
     </ShellWrapper>
   );
