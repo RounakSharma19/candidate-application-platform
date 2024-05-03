@@ -3,10 +3,9 @@ import { QueryFunction } from "@tanstack/react-query";
 
 export const fetchJobs: QueryFunction<
   any,
-  [string, { limit: number; offset: number; filters: any }]
-> = async (context) => {
-  const { queryKey } = context;
-  const { limit, offset, filters } = queryKey[1];
+  [string, { limit: number; offset: number; filters?: any }]
+> = async ({ queryKey }) => {
+  const [, { limit, offset, filters }] = queryKey;
   const response = await fetch(
     "https://api.weekday.technology/adhoc/getSampleJdJSON",
     {

@@ -9,5 +9,10 @@ export const jobs = {
     minExperience: "Minimum Experience",
     years: "Years",
     year: "Year",
+    search: "Search Company Name",
+    min: "Minimum Base Pay Salary",
+    location: "Location",
+    roles: "Roles",
+    experience: "Experience",
   },
 };

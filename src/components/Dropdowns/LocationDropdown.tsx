@@ -12,6 +12,7 @@ type TProps = {
   variant?: "filled" | "outlined" | "standard";
   size?: "small" | "medium";
   width?: number | string;
+  placeholder?: string;
 };
 
 export const LocationDropdown = (props: TProps): JSX.Element => {
@@ -21,6 +22,7 @@ export const LocationDropdown = (props: TProps): JSX.Element => {
     variant = "outlined",
     size = "small",
     width = "100%",
+    placeholder,
   } = props;
 
   const { data } = useCustomQuery(
@@ -34,7 +36,7 @@ export const LocationDropdown = (props: TProps): JSX.Element => {
     // Extract locations from job data
     const locations: Set<string> = new Set();
     data.jdList.forEach((job: any) => {
-      if (job.location) {
+      if (job.location && job.location !== "remote") {
         locations.add(job.location);
       }
     });
@@ -51,7 +53,7 @@ export const LocationDropdown = (props: TProps): JSX.Element => {
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Location"
+          placeholder={placeholder}
           variant={variant}
           fullWidth
           size={size}

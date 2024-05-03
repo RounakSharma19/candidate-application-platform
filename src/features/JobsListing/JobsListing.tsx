@@ -8,6 +8,7 @@ import {
   Grid,
   Box,
   Avatar,
+  Stack,
 } from "@mui/material";
 import { PostedChip } from "./PostedChip";
 import { jobsIcon } from "@assets";
@@ -20,13 +21,15 @@ import {
   RoleDropdown,
   MinBasePayDropdown,
   SearchBar,
+  BadgeAvatars,
 } from "@components";
-import { CheckOutlined } from "@mui/icons-material";
-import { useCustomQuery } from "@hooks";
+import { Bolt, CheckOutlined } from "@mui/icons-material";
 import { TExperienceLevel, TMinBasePay, TRole } from "./index";
+import { useCustomQuery } from "@hooks";
 import { fetchJobs } from "@api";
 
 const MAX_DESCRIPTION_LENGTH = 200;
+const MAX_LINES_INITIAL = 3;
 
 export const JobsListing = (): JSX.Element => {
   const useMessage = jobs.listing;
@@ -38,8 +41,16 @@ export const JobsListing = (): JSX.Element => {
     unlock: useMessage.unlock,
     minExperience: useMessage.minExperience,
     years: useMessage.years,
+    search: useMessage.search,
+    min: useMessage.min,
+    location: useMessage.location,
+    roles: useMessage.roles,
+    experience: useMessage.experience,
   };
 
+  const [expandedDescriptions, setExpandedDescriptions] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [selectedExperience, setSelectedExperience] =
     useState<TExperienceLevel | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -79,10 +90,6 @@ export const JobsListing = (): JSX.Element => {
     fetchJobs
   );
 
-  const [expandedDescriptions, setExpandedDescriptions] = useState<{
-    [key: string]: boolean;
-  }>({});
-
   const toggleDescription = (jobUid: string) => {
     setExpandedDescriptions((prev) => ({
       ...prev,
@@ -97,9 +104,9 @@ export const JobsListing = (): JSX.Element => {
       (selectedRole && job.role !== selectedRole) ||
       (selectedBasePay && job.basePay !== selectedBasePay)
     ) {
-      return false; // Job does not match filter criteria
+      return false;
     }
-    return true; // Job matches filter criteria
+    return true;
   });
 
   return (
@@ -109,45 +116,59 @@ export const JobsListing = (): JSX.Element => {
       justifyContent="space-between"
       padding={3}
     >
-      <Grid container spacing={1} marginBottom={3} marginTop={3} padding={1}>
-        <MinExperienceDropdown
-          value={selectedExperience}
-          onChange={handleChangeExperience}
-          variant="outlined"
-          size="small"
-          width={200}
-        />
-        <LocationDropdown
-          value={selectedLocation}
-          onChange={handleChangeLocation}
-          variant="outlined"
-          size="small"
-          width={200}
-        />
-        <RoleDropdown
-          value={selectedRole}
-          onChange={handleChangeRole}
-          variant="outlined"
-          size="small"
-          width={200}
-        />
-        <MinBasePayDropdown
-          value={selectedBasePay}
-          onChange={handleChangeMinBasePay}
-          variant="outlined"
-          size="small"
-          width={200}
-        />
-        <SearchBar
-          onSearch={(value) => {
-            console.log("Search value:", value);
-          }}
-          placeholder="Search..."
-          label="Search"
-          value={""}
-          size="small"
-        />
+      <Grid container spacing={2} marginBottom={3} marginTop={3} padding={0.5}>
+        <Grid item>
+          <MinExperienceDropdown
+            value={selectedExperience}
+            onChange={handleChangeExperience}
+            variant="outlined"
+            size="small"
+            width={180}
+            placeholder={localized.experience}
+          />
+        </Grid>
+        <Grid item>
+          <LocationDropdown
+            value={selectedLocation}
+            onChange={handleChangeLocation}
+            variant="outlined"
+            size="small"
+            width={230}
+            placeholder={localized.location}
+          />
+        </Grid>
+        <Grid item>
+          <RoleDropdown
+            value={selectedRole}
+            onChange={handleChangeRole}
+            variant="outlined"
+            size="small"
+            width={230}
+            placeholder={localized.roles}
+          />
+        </Grid>
+        <Grid item>
+          <MinBasePayDropdown
+            value={selectedBasePay}
+            onChange={handleChangeMinBasePay}
+            variant="outlined"
+            size="small"
+            width={260}
+            placeholder={localized.min}
+          />
+        </Grid>
+        <Grid item>
+          <SearchBar
+            onSearch={(value) => {
+              console.log("Search value:", value);
+            }}
+            placeholder={localized.search}
+            value={""}
+            size="small"
+          />
+        </Grid>
       </Grid>
+
       <Grid container spacing={2}>
         {filteredJobs?.map((job: any) => (
           <Grid item xs={12} sm={6} md={4} key={job.jdUid} marginBottom={5}>
@@ -187,9 +208,9 @@ export const JobsListing = (): JSX.Element => {
                 <Render if={job.maxJdSalary}>
                   <Typography
                     variant="h5"
-                    fontWeight="bold"
-                    color="text.secondary"
+                    color="#4c5969"
                     marginBottom={2}
+                    fontWeight={500}
                   >
                     {localized.estimated}
                     {`${isUndefinedOrNull(
@@ -222,15 +243,12 @@ export const JobsListing = (): JSX.Element => {
                   variant="body1"
                   color="text.primary"
                   sx={{
-                    whiteSpace: expandedDescriptions[job.jdUid]
-                      ? "normal"
-                      : "nowrap",
-                    overflow: expandedDescriptions[job.jdUid]
-                      ? "visible"
-                      : "hidden",
-                    textOverflow: expandedDescriptions[job.jdUid]
+                    display: "-webkit-box",
+                    WebkitLineClamp: expandedDescriptions[job.jdUid]
                       ? "unset"
-                      : "ellipsis",
+                      : MAX_LINES_INITIAL,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
                     marginBottom: "0.5rem",
                     transition: "all 0.3s ease-in-out",
                     opacity: expandedDescriptions[job.jdUid] ? 1 : 0.5,
@@ -238,6 +256,7 @@ export const JobsListing = (): JSX.Element => {
                 >
                   {job.jobDetailsFromCompany}
                 </Typography>
+
                 <Box display="flex" justifyContent="center" marginBottom={3}>
                   <Render
                     if={
@@ -260,18 +279,10 @@ export const JobsListing = (): JSX.Element => {
                     </Button>
                   </Render>
                 </Box>
-                <Typography
-                  variant="h5"
-                  fontWeight="normal"
-                  color="text.secondary"
-                >
+                <Typography variant="h5" fontWeight="normal" color="#9c9c9c">
                   {localized.minExperience}
                 </Typography>
-                <Typography
-                  variant="h5"
-                  fontWeight="normal"
-                  color="text.secondary"
-                >
+                <Typography variant="h5" fontWeight="normal" color="#212121">
                   {isUndefinedOrNull(`${job.minExp} ${localized.years}`)}
                 </Typography>
                 <Button
@@ -283,10 +294,14 @@ export const JobsListing = (): JSX.Element => {
                     borderRadius: 2,
                     fontWeight: "bold",
                     padding: 1.5,
+                    backgroundColor: "#54efc3",
+                    marginBottom: 1.7,
                   }}
+                  startIcon={<Bolt sx={{ color: "#ffd768" }} />}
                 >
                   {localized.easyApply}
                 </Button>
+
                 <Button
                   variant="contained"
                   fullWidth
@@ -299,6 +314,14 @@ export const JobsListing = (): JSX.Element => {
                     color: "#fff",
                   }}
                 >
+                  <Stack direction="row" spacing={1}>
+                    <BadgeAvatars />
+
+                    <BadgeAvatars />
+                  </Stack>
+
+                  <span>&nbsp;&nbsp;</span>
+
                   {localized.unlock}
                 </Button>
               </CardContent>

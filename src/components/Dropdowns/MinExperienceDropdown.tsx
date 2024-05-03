@@ -16,6 +16,7 @@ type TProps = {
   variant?: "filled" | "outlined" | "standard";
   size?: "small" | "medium";
   width?: number | string;
+  placeholder?: string;
 };
 
 export const MinExperienceDropdown = (props: TProps): JSX.Element => {
@@ -25,6 +26,7 @@ export const MinExperienceDropdown = (props: TProps): JSX.Element => {
     variant = "outlined",
     size = "small",
     width = "100%",
+    placeholder,
   } = props;
 
   const { data } = useCustomQuery(
@@ -70,7 +72,7 @@ export const MinExperienceDropdown = (props: TProps): JSX.Element => {
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Minimum Experience"
+          placeholder={placeholder}
           variant={variant}
           fullWidth
           size={size}

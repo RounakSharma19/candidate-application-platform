@@ -1,6 +1,6 @@
 import { JobListingPage } from "@pages";
 import { routes } from "@constants";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 /**
  * Main application router
@@ -13,6 +13,7 @@ export const MainStackRouter = (): React.JSX.Element => {
         <Route path={routes.JOBS}>
           <Route index element={<JobListingPage />} />
         </Route>
+        <Route path="*" element={<Navigate to={routes.JOBS} replace />} />
       </Routes>
     </>
   );

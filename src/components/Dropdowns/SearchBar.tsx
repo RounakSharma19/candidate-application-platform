@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Clear, Search } from "@mui/icons-material";
+import { Clear } from "@mui/icons-material";
 import { IconButton, TextField } from "@mui/material";
 
 import { Render } from "../Render";
@@ -35,11 +35,6 @@ export const SearchBar = (props: Props): JSX.Element => {
       value={value}
       size={size}
       InputProps={{
-        startAdornment: (
-          <IconButton size={size}>
-            <Search />
-          </IconButton>
-        ),
         endAdornment: (
           <Render if={!!value}>
             <IconButton onClick={handleClear} size={size}>

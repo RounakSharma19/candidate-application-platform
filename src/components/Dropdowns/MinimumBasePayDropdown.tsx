@@ -13,6 +13,7 @@ type TProps = {
   variant?: "filled" | "outlined" | "standard";
   size?: "small" | "medium";
   width?: number | string;
+  placeholder?: string;
 };
 
 export const MinBasePayDropdown = (props: TProps): JSX.Element => {
@@ -22,6 +23,7 @@ export const MinBasePayDropdown = (props: TProps): JSX.Element => {
     variant = "outlined",
     size = "small",
     width = "100%",
+    placeholder,
   } = props;
 
   const { data } = useCustomQuery(
@@ -44,7 +46,7 @@ export const MinBasePayDropdown = (props: TProps): JSX.Element => {
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Minimum Base Pay"
+          placeholder={placeholder}
           variant={variant}
           fullWidth
           size={size}

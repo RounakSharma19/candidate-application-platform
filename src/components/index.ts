@@ -8,3 +8,4 @@ export {
   MinBasePayDropdown,
   SearchBar,
 } from "./Dropdowns";
+export { BadgeAvatars } from "./BadgeAvatars";
