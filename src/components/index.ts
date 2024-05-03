@@ -9,3 +9,4 @@ export {
   SearchBar,
 } from "./Dropdowns";
 export { BadgeAvatars } from "./BadgeAvatars";
+export { ShellWrapper } from "./ShellWrapper";
