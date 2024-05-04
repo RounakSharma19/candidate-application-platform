@@ -11,7 +11,6 @@ import {
   Stack,
 } from "@mui/material";
 import { PostedChip } from "./PostedChip";
-import { jobsIcon } from "@assets";
 import { capitalizeFirst, isUndefinedOrNull, WithRupeeSymbol } from "@utils";
 import { jobs } from "@lang";
 import {
@@ -256,8 +255,19 @@ export const JobsListing = (): JSX.Element => {
                       marginTop={2}
                       marginBottom={2}
                     >
-                      <Avatar src={jobsIcon} sx={{ ml: 2 }} />
+                      <Avatar
+                        src={job?.logoUrl}
+                        sx={{ ml: 2, borderRadius: 0, height: 80, width: 80 }}
+                      />
+
                       <Box ml={1.5} display="flex" flexDirection="column">
+                        <Typography
+                          variant="h6"
+                          marginBottom={0.5}
+                          color="#4c5969"
+                        >
+                          {capitalizeFirst(job?.companyName)}
+                        </Typography>
                         <Typography
                           variant="h5"
                           fontWeight="bold"
